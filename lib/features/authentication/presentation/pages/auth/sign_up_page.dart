@@ -23,10 +23,11 @@ class _SignUpState extends State<SignUp> {
                   image: AssetImage("assets/sign_in.png")),
             ),
             Center(
-                child: Text(
-              "Signup",
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-            )),
+              child: Text(
+                "Signup",
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
+            ),
             SizedBox(
               height: 10,
             ),

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:test_app/features/authentication/data/models/sign_in_model.dart';
+import 'package:test_app/features/authentication/data/models/sign_out_model.dart';
 import 'package:test_app/features/authentication/data/models/sign_up_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:test_app/features/authentication/domain/entities/sign_out_entity.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
@@ -41,10 +43,17 @@ class AuthenticationRepositoryImp implements AuthenticationRepository {
   }
 
   @override
+  Future<void> signOut(SignOutEntity signOut) async {
+    if (await networkInfo.isConnected) {
+      await authRemoteDataSource.signOut();
+    }
+  }
+
+  @override
   Future<Either<Failure, UserCredential>> signUp(SignUpEntity signUp) async {
     if (!await networkInfo.isConnected) {
       return Left(OfflineFailure());
-    } else if (signUp.password == signUp.repeatedPassword) {
+    } else if (signUp.password != signUp.repeatedPassword) {
       return Left(UnmatchedPassFailure());
     } else {
       try {

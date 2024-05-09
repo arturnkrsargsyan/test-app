@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:test_app/features/authentication/domain/entities/sign_out_entity.dart';
 import 'package:test_app/features/authentication/domain/usecases/google_auth_usecase.dart';
 import 'package:bloc/bloc.dart';
 import 'package:test_app/features/authentication/domain/entities/sign_in_entity.dart';
 import 'package:test_app/features/authentication/domain/entities/sign_up_entity.dart';
 import 'package:test_app/features/authentication/domain/usecases/first_page_usecase.dart';
 import 'package:test_app/features/authentication/domain/usecases/sign_in_usecase.dart';
+import 'package:test_app/features/authentication/domain/usecases/sign_out_usecase.dart';
 import '../../../../../core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -20,6 +22,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInUseCase signInUseCase;
   final SignUpUseCase signUpUseCase;
+  final SignOutUseCase signOutUseCase;
   final VerifyEmailUseCase verifyEmailUseCase;
   final FirstPageUseCase firstPage;
   final CheckVerificationUseCase checkVerificationUseCase;
@@ -27,15 +30,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Completer<void> completer = Completer<void>();
 
-  AuthBloc(
-      {required this.signInUseCase,
-      required this.signUpUseCase,
-      required this.firstPage,
-      required this.verifyEmailUseCase,
-      required this.checkVerificationUseCase,
-      required this.googleAuthUseCase})
-      : super(AuthInitial()) {
+  AuthBloc({
+    required this.signInUseCase,
+    required this.signUpUseCase,
+    required this.firstPage,
+    required this.verifyEmailUseCase,
+    required this.checkVerificationUseCase,
+    required this.googleAuthUseCase,
+    required this.signOutUseCase,
+  }) : super(AuthInitial()) {
     on<AuthEvent>((event, emit) async {
+      print(event);
       if (event is CheckLoggingInEvent) {
         final theFirstPage = firstPage();
         if (theFirstPage.isLoggedIn) {
@@ -43,12 +48,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else if (theFirstPage.isVerifyingEmail) {
           emit(VerifyEmailPageState());
         }
+      } else if (event is SignOutEvent) {
+        await signOutUseCase(event.signOutEntity);
       } else if (event is SignInEvent) {
         emit(LoadingState());
         final failureOrUserCredential = await signInUseCase(event.signInEntity);
         emit(eitherToState(failureOrUserCredential, SignedInState()));
       } else if (event is SignUpEvent) {
         emit(LoadingState());
+        print("===============================WORKS");
         final failureOrUserCredential = await signUpUseCase(event.signUpEntity);
         emit(eitherToState(failureOrUserCredential, SignedUpState()));
       } else if (event is SendEmailVerificationEvent) {

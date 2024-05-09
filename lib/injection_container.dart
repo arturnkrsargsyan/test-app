@@ -6,6 +6,7 @@ import 'package:test_app/features/authentication/domain/usecases/check_verificat
 import 'package:test_app/features/authentication/domain/usecases/first_page_usecase.dart';
 import 'package:test_app/features/authentication/domain/usecases/google_auth_usecase.dart';
 import 'package:test_app/features/authentication/domain/usecases/sign_in_usecase.dart';
+import 'package:test_app/features/authentication/domain/usecases/sign_out_usecase.dart';
 import 'package:test_app/features/authentication/domain/usecases/sign_up_usecase.dart';
 import 'package:test_app/features/authentication/domain/usecases/verifiy_email_usecase.dart';
 import 'package:test_app/features/authentication/presentation/bloc/authentication/auth_bloc.dart';
@@ -22,6 +23,7 @@ Future<void> init() async {
   sl.registerFactory(() => AuthBloc(
       signInUseCase: sl(),
       signUpUseCase: sl(),
+      signOutUseCase: sl(),
       firstPage: sl(),
       verifyEmailUseCase: sl(),
       checkVerificationUseCase: sl(),
@@ -31,6 +33,7 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => SignInUseCase(sl()));
   sl.registerLazySingleton(() => SignUpUseCase(sl()));
+  sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => FirstPageUseCase(sl()));
   sl.registerLazySingleton(() => VerifyEmailUseCase(sl()));
   sl.registerLazySingleton(() => CheckVerificationUseCase(sl()));

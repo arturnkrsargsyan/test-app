@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_app/features/authentication/domain/entities/sign_out_entity.dart';
 import 'package:test_app/features/authentication/presentation/pages/auth/sign_in_page.dart';
+import 'package:test_app/features/authentication/presentation/pages/auth/sign_up_page.dart';
 
 import '../bloc/authentication/auth_bloc.dart';
 
@@ -31,6 +33,17 @@ class _HomePageState extends State<HomePage> {
                     child: const Text('Log out',
                         style: TextStyle(color: Colors.red)),
                     onPressed: () {
+                      BlocProvider.of<AuthBloc>(context).add(
+                        SignOutEvent(
+                          signOutEntity: const SignOutEntity(),
+                        ),
+                      );
+
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const SignUp(),
+                        ),
+                      );
                       // to implement
                     },
                   )

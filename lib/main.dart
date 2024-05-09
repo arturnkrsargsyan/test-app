@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
               theme:
                   ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
               debugShowCheckedModeBanner: false,
-              home: SignUp(),
+              home: const SignUp(),
             );
           }
         },

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:test_app/features/authentication/data/models/sign_out_model.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/sign_in_model.dart';
 import '../models/sign_up_model.dart';
@@ -8,28 +9,45 @@ import '../models/sign_up_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserCredential> signUp(SignUpModel signUp);
   Future<UserCredential> signIn(SignInModel signIn);
+  Future<void> signOut();
   Future<UserCredential> googleAuthentication();
 
   Future<Unit> verifyEmail();
 }
-
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserCredential> signIn(SignInModel signIn) async {
     try {
       FirebaseAuth firebaseInstance = FirebaseAuth.instance;
-     await  firebaseInstance.currentUser?.reload();
-     return  await firebaseInstance.signInWithEmailAndPassword(
+      await firebaseInstance.currentUser?.reload();
+      return await firebaseInstance.signInWithEmailAndPassword(
         email: signIn.email,
         password: signIn.password,
       );
-    }  on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw ExistedAccountException();
       } else if (e.code == 'wrong-password') {
         throw WrongPasswordException();
-      }else{
+      } else {
+        throw ServerException();
+      }
+    }
+  }
+
+  @override
+  Future<void> signOut() async {
+    try {
+      FirebaseAuth firebaseInstance = FirebaseAuth.instance;
+      // await
+      await firebaseInstance.signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        throw WeekPassException();
+      } else if (e.code == 'email-already-in-use') {
+        throw ExistedAccountException();
+      } else {
         throw ServerException();
       }
     }
@@ -39,7 +57,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserCredential> signUp(SignUpModel signUp) async {
     try {
       FirebaseAuth firebaseInstance = FirebaseAuth.instance;
-      await  firebaseInstance.currentUser?.reload();
+      await firebaseInstance.currentUser?.reload();
       if (signUp.password != signUp.repeatedPassword) {
         throw ServerException();
       }
@@ -52,7 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw WeekPassException();
       } else if (e.code == 'email-already-in-use') {
         throw ExistedAccountException();
-      }else{
+      } else {
         throw ServerException();
       }
     }
@@ -60,22 +78,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Unit> verifyEmail() async {
-
     final user = FirebaseAuth.instance.currentUser;
-    if(user != null){
-      try{
+    if (user != null) {
+      try {
         await user.reload();
         await user.sendEmailVerification();
-      }on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException catch (e) {
         if (e.code == 'too-many-requests') {
           throw TooManyRequestsException();
-        }else {
+        } else {
           throw ServerException();
         }
-      }catch(e){
+      } catch (e) {
         throw ServerException();
       }
-    }else{
+    } else {
       throw NoUserException();
     }
     return Future.value(unit);
@@ -84,22 +101,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserCredential> googleAuthentication() async {
     FirebaseAuth firebaseInstance = FirebaseAuth.instance;
-    await  firebaseInstance.currentUser?.reload();
+    await firebaseInstance.currentUser?.reload();
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
     // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
-    try{
+    try {
       return await firebaseInstance.signInWithCredential(credential);
-    }catch(e){
+    } catch (e) {
       throw ServerException();
     }
   }
-
 }

@@ -22,7 +22,6 @@ class _SignUpFormState extends State<SignUpForm> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool isVisible = false;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -94,6 +93,9 @@ class _SignUpFormState extends State<SignUpForm> {
                     },
                   ),
                 ),
+                onChanged: (f) {
+                  print("=====$f=====================================");
+                },
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your password';
@@ -116,11 +118,16 @@ class _SignUpFormState extends State<SignUpForm> {
                   labelText: 'Confirm password',
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  print("=====================$value");
+                },
                 validator: (value) {
+                  print(value);
+                  print(_passwordController.text);
                   if (value!.isEmpty) {
-                    return 'Please enter your password confirmation';
+                    return 'Please enter your pasfffffsword confirmation';
                   } else if (value != _passwordController.text) {
-                    return "Password doesn't match.";
+                    return "Password doesaaaaaaaaaaaaaaaaaaaaaaan't match.";
                   }
                   return null;
                 },
@@ -129,72 +136,48 @@ class _SignUpFormState extends State<SignUpForm> {
             const SizedBox(
               height: 20,
             ),
-            BlocConsumer<AuthBloc, AuthState>(listener: (_, state) {
-              if (state is SignedUpState) {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const VerifyEmail()));
-                BlocProvider.of<AuthBloc>(context)
-                    .add(SendEmailVerificationEvent());
-              } else if (state is GoogleSignInState) {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomePage()));
-              }
-            }, builder: (context, state) {
-              if (state is LoadingState) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (state is ErrorAuthState) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Center(
-                        child: Text(
-                          state.message,
-                          style: const TextStyle(color: Colors.red),
+            BlocConsumer<AuthBloc, AuthState>(
+              listener: (_, state) {
+                if (state is SignedUpState) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const VerifyEmail()));
+                  BlocProvider.of<AuthBloc>(context)
+                      .add(SendEmailVerificationEvent());
+                } else if (state is GoogleSignInState) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const HomePage()));
+                }
+              },
+              builder: (context, state) {
+                if (state is LoadingState) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is ErrorAuthState) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Center(
+                          child: Text(
+                            state.message,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ),
                       ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        BlocProvider.of<AuthBloc>(context).add(SignUpEvent(
-                            signUpEntity: SignUpEntity(
-                          email: _emailController.text,
-                          password: _passwordController.text,
-                          repeatedPassword: _confirmPasswordController.text,
-                          name: _usernameController.text,
-                        )));
-                      },
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        )),
-                        minimumSize:
-                            MaterialStateProperty.all(const Size(500, 50)),
-                        textStyle: MaterialStateProperty.all(
-                            const TextStyle(fontSize: 18)),
-                      ),
-                      child: const Text('Signup'),
-                    )
-                  ],
-                );
-              }
-              return SizedBox(
-                  height: 50,
-                  child: FractionallySizedBox(
-                      widthFactor: 0.8,
-                      child: ElevatedButton(
+                      ElevatedButton(
                         onPressed: () {
-                          BlocProvider.of<AuthBloc>(context).add(SignUpEvent(
+                          BlocProvider.of<AuthBloc>(context).add(
+                            SignUpEvent(
                               signUpEntity: SignUpEntity(
-                            email: _emailController.text,
-                            password: _passwordController.text,
-                            repeatedPassword: _confirmPasswordController.text,
-                            name: _usernameController.text,
-                          )));
+                                name: _usernameController.text,
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                                repeatedPassword:
+                                    _confirmPasswordController.text,
+                              ),
+                            ),
+                          );
                         },
                         style: ButtonStyle(
                           shape:
@@ -202,28 +185,65 @@ class _SignUpFormState extends State<SignUpForm> {
                                   RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           )),
+                          minimumSize:
+                              MaterialStateProperty.all(const Size(500, 50)),
                           textStyle: MaterialStateProperty.all(
                               const TextStyle(fontSize: 18)),
                         ),
-                        child: const Text('Signup'),
-                      )));
-            }),
+                        child: const Text('Sign2222up'),
+                      )
+                    ],
+                  );
+                }
+                return SizedBox(
+                  height: 50,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.8,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        BlocProvider.of<AuthBloc>(context).add(
+                          SignUpEvent(
+                            signUpEntity: SignUpEntity(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                              repeatedPassword: _confirmPasswordController.text,
+                              name: _usernameController.text,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ButtonStyle(
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        )),
+                        textStyle: MaterialStateProperty.all(
+                            const TextStyle(fontSize: 18)),
+                      ),
+                      child: const Text('Sifffffgnup'),
+                    ),
+                  ),
+                );
+              },
+            ),
             Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Have an account?"),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SignIn()));
-                        },
-                        child: const Text("Login"))
-                  ],
-                )),
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Have an account?"),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SignIn()));
+                      },
+                      child: const Text("Login"))
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -239,20 +259,21 @@ class _SignUpFormState extends State<SignUpForm> {
         onPressed!();
       },
       child: Container(
-          height: 50,
-          margin:
-              const EdgeInsets.only(top: 0, bottom: 20, left: 10, right: 10),
-          width: 50,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue),
-            borderRadius: BorderRadius.circular(50),
+        height: 50,
+        margin: const EdgeInsets.only(top: 0, bottom: 20, left: 10, right: 10),
+        width: 50,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue),
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Image.asset(
+            imagePath!,
+            color: color,
           ),
-          child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Image.asset(
-                imagePath!,
-                color: color,
-              ))),
+        ),
+      ),
     );
   }
 }
